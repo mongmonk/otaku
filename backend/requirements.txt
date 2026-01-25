@@ -1,0 +1,8 @@
+httpx
+selectolax
+fastapi
+uvicorn
+sqlalchemy
+aiomysql
+python-dotenv
+apscheduler
