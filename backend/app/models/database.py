@@ -8,19 +8,20 @@ anime_genres = Table(
     "anime_genres",
     Base.metadata,
     Column("anime_slug", String(255), ForeignKey("animes.slug", ondelete="CASCADE"), primary_key=True),
-    Column("genre_id", Integer, ForeignKey("genres.id", ondelete="CASCADE"), primary_key=True),
+    Column("genre_slug", String(100), ForeignKey("genres.slug", ondelete="CASCADE"), primary_key=True),
 )
 
 class Genre(Base):
     __tablename__ = "genres"
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    name = Column(String(100), unique=True, nullable=False)
+    slug = Column(String(100), primary_key=True)
+    name = Column(String(100), nullable=False)
     animes = relationship("Anime", secondary=anime_genres, back_populates="genres")
 
 class Anime(Base):
     __tablename__ = "animes"
 
-    slug = Column(String(255), primary_key=True, nullable=False)
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    slug = Column(String(255), unique=True, nullable=False)
     title = Column(String(255), nullable=False)
     title_jp = Column(String(255))
     score = Column(Float)

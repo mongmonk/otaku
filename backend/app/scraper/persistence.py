@@ -43,24 +43,27 @@ async def save_anime(db: AsyncSession, anime_data: dict):
         # Clear existing genres
         anime.genres = []
         for name in genre_names:
+            slug = name.lower().replace(" ", "-")
             # Menggunakan SELECT ... FOR UPDATE untuk menghindari race condition saat pembuatan genre
-            gen_res = await db.execute(select(Genre).where(Genre.name == name).with_for_update())
+            gen_res = await db.execute(select(Genre).where(Genre.slug == slug))
             genre = gen_res.scalars().first()
             if not genre:
+                # Gunakan nested transaction agar rollback tidak merusak session utama
+                nested = await db.begin_nested()
                 try:
-                    genre = Genre(name=name)
+                    genre = Genre(slug=slug, name=name)
                     db.add(genre)
-                    await db.flush()
+                    await nested.commit()
                 except Exception:
-                    # Jika gagal karena sudah ada yang insert duluan
-                    await db.rollback()
-                    gen_res = await db.execute(select(Genre).where(Genre.name == name))
+                    await nested.rollback()
+                    gen_res = await db.execute(select(Genre).where(Genre.slug == slug))
                     genre = gen_res.scalars().first()
             
             if genre and genre not in anime.genres:
                 anime.genres.append(genre)
 
-    await db.commit()
+    # await db.commit()  # Removed commit to allow parent transaction control
+    await db.flush()
     await db.refresh(anime)
     return anime
 
@@ -106,6 +109,7 @@ async def save_episode(db: AsyncSession, anime_slug: str, episode_data: dict):
         new_sl = StreamLink(episode_id=episode.id, **sl)
         db.add(new_sl)
 
-    await db.commit()
+    # await db.commit()  # Removed commit to allow parent transaction control
+    await db.flush()
     await db.refresh(episode)
     return episode

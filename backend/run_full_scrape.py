@@ -17,7 +17,8 @@ logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(levelname)s - %(message)s',
     handlers=[
-        logging.StreamHandler(sys.stdout)
+        logging.StreamHandler(sys.stdout),
+        logging.FileHandler('scraper_error.log', encoding='utf-8')
     ]
 )
 logger = logging.getLogger(__name__)
@@ -51,15 +52,21 @@ async def download_poster(url: str, slug: str) -> str:
     
     return url # Fallback ke URL original jika gagal
 
-async def process_anime(scraper, item, stats, semaphore):
+async def process_anime(scraper, item, stats, semaphore, stop_event):
     """
     Memproses satu anime dengan concurrency limit dan retry untuk deadlock.
     """
+    if stop_event.is_set():
+        return
+
     max_retries = 3
     for attempt in range(max_retries):
         async with semaphore:
             async with AsyncSessionLocal() as db:
                 try:
+                    if stop_event.is_set():
+                        return
+
                     print(f"[*] Memproses: {item['title']}...")
                     
                     # 2. Ambil detail untuk setiap anime
@@ -81,8 +88,12 @@ async def process_anime(scraper, item, stats, semaphore):
                     if anime:
                         stats["total_anime"] += 1
                         
-                        # 4. Simpan episode dan link-nya
+                        # 4. Simpan episode dan link-nya (Scrape SEMUA episode per anime secara berurutan)
+                        print(f"   [*] Menemukan {len(episodes_data)} episode. Memproses...")
                         for ep in episodes_data:
+                            if stop_event.is_set():
+                                break
+
                             # Ambil link download/stream untuk episode ini
                             links = await scraper.get_episode_links(ep["url"])
                             all_dl_links = links.get("download_links", [])
@@ -116,12 +127,19 @@ async def process_anime(scraper, item, stats, semaphore):
                             await save_episode(db, anime.slug, ep)
                             stats["total_episodes"] += 1
                             stats["total_links"] += num_links
+
+                            # Commit manual karena save_episode tidak lagi melakukan commit
+                            await db.commit()
+                            print(f"     ✓ Episode disimpan: {ep.get('title')}")
                         
                         print(f"   ✓ Berhasil: {anime.title} ({len(episodes_data)} eps)")
                         return # Berhasil, keluar dari loop retry
                             
                 except Exception as e:
-                    await db.rollback()
+                    try:
+                        await db.rollback()
+                    except:
+                        pass
                     if "Deadlock found" in str(e) and attempt < max_retries - 1:
                         logger.warning(f"Deadlock pada {item['title']}, mencoba ulang ({attempt + 1}/{max_retries})...")
                         await asyncio.sleep(1) # Tunggu sebentar sebelum retry
@@ -154,6 +172,7 @@ async def run_full_scrape():
     
     # Limit concurrency agar tidak diblokir (5-10 request sekaligus)
     semaphore = asyncio.Semaphore(8)
+    stop_event = asyncio.Event()
     
     try:
         # 1. Ambil daftar anime dari sitemap
@@ -166,13 +185,19 @@ async def run_full_scrape():
             print("Tidak ada anime yang ditemukan di sitemap.")
             return
 
-        # Buat task untuk setiap anime
-        tasks = []
-        for item in anime_list:
-            tasks.append(process_anime(scraper, item, stats, semaphore))
+        # Mulai dari urutan ke-1375 (index 1374)
+        start_index = 1686
+        if len(anime_list) > start_index:
+            print(f"Memulai dari urutan ke-{start_index + 1} ({anime_list[start_index].get('slug')}).")
+        else:
+            print(f"Peringatan: Index {start_index} di luar jangkauan. Total anime: {len(anime_list)}")
+            start_index = 0
         
-        # Jalankan semua task secara concurrent
-        await asyncio.gather(*tasks)
+        # Proses anime mulai dari start_index
+        for item in anime_list[start_index:]:
+            if stop_event.is_set():
+                break
+            await process_anime(scraper, item, stats, semaphore, stop_event)
                     
         print("\n" + "="*50)
         print("SCRAPING SELESAI")

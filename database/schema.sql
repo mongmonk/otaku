@@ -8,6 +8,7 @@ SET FOREIGN_KEY_CHECKS = 0;
 -- Table structure for animes
 -- ----------------------------
 CREATE TABLE IF NOT EXISTS `animes` (
+  `id` INT NOT NULL AUTO_INCREMENT,
   `slug` VARCHAR(255) NOT NULL,
   `title` VARCHAR(255) NOT NULL,
   `title_jp` VARCHAR(255),
@@ -23,8 +24,32 @@ CREATE TABLE IF NOT EXISTS `animes` (
   `poster_url` VARCHAR(500),
   `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (`slug`),
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uk_anime_slug` (`slug`),
   INDEX `idx_anime_title` (`title`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ----------------------------
+-- Table structure for genres
+-- ----------------------------
+CREATE TABLE IF NOT EXISTS `genres` (
+  `slug` VARCHAR(100) NOT NULL,
+  `name` VARCHAR(100) NOT NULL,
+  `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`slug`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ----------------------------
+-- Table structure for anime_genres
+-- ----------------------------
+CREATE TABLE IF NOT EXISTS `anime_genres` (
+  `anime_slug` VARCHAR(255) NOT NULL,
+  `genre_slug` VARCHAR(100) NOT NULL,
+  PRIMARY KEY (`anime_slug`, `genre_slug`),
+  CONSTRAINT `fk_anime_genres_anime_slug` FOREIGN KEY (`anime_slug`) REFERENCES `animes` (`slug`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `fk_anime_genres_genre_slug` FOREIGN KEY (`genre_slug`) REFERENCES `genres` (`slug`) ON DELETE CASCADE ON UPDATE CASCADE,
+  INDEX `idx_anime_genres_anime_slug` (`anime_slug`),
+  INDEX `idx_anime_genres_genre_slug` (`genre_slug`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ----------------------------
@@ -36,7 +61,7 @@ CREATE TABLE IF NOT EXISTS `episodes` (
   `title` VARCHAR(255) NOT NULL,
   `episode_number` VARCHAR(50),
   `episode_slug` VARCHAR(255) NOT NULL,
-  `uploaded_at` DATETIME DEFAULT NULL,
+  `uploaded_at` VARCHAR(100) DEFAULT NULL,
   `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),

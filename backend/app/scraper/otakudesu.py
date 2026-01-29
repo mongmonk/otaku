@@ -13,13 +13,17 @@ class OtakuDesuScraper:
     def __init__(self):
         self.base_url = "https://otakudesu.best"
         self.headers = {
-            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+            "X-Requested-With": "XMLHttpRequest"
         }
 
-    async def _fetch(self, url: str) -> Optional[str]:
+    async def _fetch(self, url: str, method: str = "GET", data: Optional[Dict] = None) -> Optional[str]:
         try:
             async with httpx.AsyncClient(headers=self.headers, follow_redirects=True, timeout=20.0) as client:
-                response = await client.get(url)
+                if method == "POST":
+                    response = await client.post(url, data=data)
+                else:
+                    response = await client.get(url)
                 response.raise_for_status()
                 return response.text
         except Exception as e:
@@ -177,6 +181,39 @@ class OtakuDesuScraper:
             logger.error(f"Error parsing detail for {url}: {e}")
             return None
 
+    async def resolve_desustream(self, url: str) -> Optional[str]:
+        """
+        Mencoba mendapatkan link video asli (biasanya blogger) dari desustream.info.
+        Mengembalikan None jika video terdeteksi mati.
+        """
+        if not url or ("desustream.info" not in url and "desustream.com" not in url):
+            return url
+            
+        html = await self._fetch(url)
+        if not html:
+            return None
+            
+        # Cek tanda-tanda video mati
+        if "File was deleted" in html or "not found" in html.lower() or "video has been removed" in html.lower():
+            return None
+
+        # Cari link blogger atau file video langsung
+        # Pola umum: src="https://www.blogger.com/video-play.mp4?..." atau sejenisnya
+        blogger_match = re.search(r'src=["\'](https://www\.blogger\.com/video-play\.mp4.*?)["\']', html)
+        if blogger_match:
+            return blogger_match.group(1)
+            
+        # Fallback cari iframe lain di dalam desustream
+        parser = LexborHTMLParser(html)
+        iframe = parser.css_first("iframe")
+        if iframe:
+            src = iframe.attributes.get("src")
+            if src and "blogger.com" in src:
+                return src
+                
+        # Jika link desustream tapi tidak ketemu blogger, anggap tidak valid agar bisa dibersihkan
+        return None
+
     async def get_episode_links(self, url: str) -> Dict[str, Any]:
         """
         Ekstraksi link streaming dan download dari halaman episode.
@@ -189,27 +226,95 @@ class OtakuDesuScraper:
         
         # 1. Ekstraksi Stream Links (Iframe Player)
         stream_links = []
-        # Biasanya ada di div.mirrorstream ul li atau langsung di iframe
-        mirror_nodes = parser.css("div.mirrorstream ul li")
-        for node in mirror_nodes:
-            try:
-                # Kadang link stream ada di attribute data-content atau base64
-                # Untuk saat ini kita ambil providernya
-                provider = node.text().strip()
-                # Link stream biasanya perlu di-resolve lagi atau diambil dari iframe
-                # Namun di OtakuDesu seringkali menggunakan iframe src
-                # Kita coba cari iframe di dalam post
-                pass
-            except:
-                continue
         
-        # Fallback: Ambil iframe utama jika ada
+        # Ambil iframe utama jika ada
         iframe_node = parser.css_first("div.responsive-embed-stream iframe")
         if iframe_node:
-            stream_links.append({
-                "provider": "DesuDrive", # Default provider biasanya DesuDrive
-                "url": iframe_node.attributes.get("src")
-            })
+            stream_url = iframe_node.attributes.get("src")
+            if stream_url:
+                # Resolve jika desustream
+                if "desustream.info" in stream_url or "desustream.com" in stream_url:
+                    resolved_url = await self.resolve_desustream(stream_url)
+                    if resolved_url:
+                        # Jika resolved_url masih mengandung desu, kita simpan tapi prioritaskan mirror nanti
+                        stream_links.append({
+                            "provider": "DesuDrive (Resolved)",
+                            "url": resolved_url
+                        })
+                else:
+                    stream_links.append({
+                        "provider": "DesuDrive",
+                        "url": stream_url
+                    })
+
+        # Jika stream utama kosong atau HANYA berisi link desustream yang belum ter-resolve ke blogger,
+        # coba ambil dari mirror server lain (GDrive, Mega, dll)
+        has_final_video = any("blogger.com" in s["url"] or ("desu" not in s["url"]) for s in stream_links)
+        
+        if not has_final_video:
+            logger.info(f"Video playable tidak ditemukan di stream utama untuk {url}, mencoba mirror...")
+
+        if not has_final_video:
+            # Ambil nonce dari script di halaman
+            nonce_match = re.search(r'action:"aa1208d27f29ca340c92c66d1926f13f"\}\)\.done\(\(\{data:a\}\)=>\{window\.__x__nonce=a', html)
+            if not nonce_match:
+                # Kadang nonce ada di tempat lain atau perlu di-fetch dulu
+                nonce_resp = await self._fetch(f"{self.base_url}/wp-admin/admin-ajax.php", method="POST", data={"action": "aa1208d27f29ca340c92c66d1926f13f"})
+                if nonce_resp:
+                    import json
+                    try:
+                        nonce_data = json.loads(nonce_resp)
+                        nonce = nonce_data.get("data")
+                    except:
+                        nonce = None
+                else:
+                    nonce = None
+            else:
+                # Nonce biasanya didapat via AJAX call terpisah, kita coba fetch manual saja
+                nonce_resp = await self._fetch(f"{self.base_url}/wp-admin/admin-ajax.php", method="POST", data={"action": "aa1208d27f29ca340c92c66d1926f13f"})
+                import json
+                try:
+                    nonce = json.loads(nonce_resp).get("data")
+                except:
+                    nonce = None
+
+            if nonce:
+                # Cek mirror 480p sebagai prioritas sesuai instruksi user
+                mirror_480p_links = parser.css("ul.m480p li a")
+                for a in mirror_480p_links:
+                    content = a.attributes.get("data-content")
+                    if content:
+                        import base64
+                        import json
+                        try:
+                            # Decode data-content
+                            decoded_content = json.loads(base64.b64decode(content).decode('utf-8'))
+                            # Request link video via AJAX
+                            ajax_data = {
+                                **decoded_content,
+                                "nonce": nonce,
+                                "action": "2a3505c93b0035d3f455df82bf976b84"
+                            }
+                            ajax_resp = await self._fetch(f"{self.base_url}/wp-admin/admin-ajax.php", method="POST", data=ajax_data)
+                            if ajax_resp:
+                                ajax_json = json.loads(ajax_resp)
+                                iframe_html = base64.b64decode(ajax_json.get("data")).decode('utf-8')
+                                # Ekstraksi src dari iframe_html
+                                src_match = re.search(r'src=["\'](.*?)["\']', iframe_html)
+                                if src_match:
+                                    final_url = src_match.group(1)
+                                    # Coba resolve jika desu, jika bukan desu tetap ambil (asal valid)
+                                    resolved = await self.resolve_desustream(final_url)
+                                    if resolved:
+                                        stream_links.append({
+                                            "provider": a.text().strip() or "Mirror",
+                                            "url": resolved
+                                        })
+                                        # Cukup ambil satu yang berhasil sesuai instruksi user (klik salah satu server)
+                                        break
+                        except Exception as e:
+                            logger.error(f"Error fetching mirror link: {e}")
+                            continue
 
         # 2. Ekstraksi Download Links
         download_links = []
