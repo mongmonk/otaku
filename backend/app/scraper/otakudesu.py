@@ -214,7 +214,7 @@ class OtakuDesuScraper:
         # Jika link desustream tapi tidak ketemu blogger, anggap tidak valid agar bisa dibersihkan
         return None
 
-    async def get_episode_links(self, url: str) -> Dict[str, Any]:
+    async def get_episode_links(self, url: str, all_mirrors: bool = False) -> Dict[str, Any]:
         """
         Ekstraksi link streaming dan download dari halaman episode.
         """
@@ -247,74 +247,60 @@ class OtakuDesuScraper:
                         "url": stream_url
                     })
 
-        # Jika stream utama kosong atau HANYA berisi link desustream yang belum ter-resolve ke blogger,
-        # coba ambil dari mirror server lain (GDrive, Mega, dll)
+        # Jika stream utama kosong atau all_mirrors=True, ambil dari mirror
         has_final_video = any("blogger.com" in s["url"] or ("desu" not in s["url"]) for s in stream_links)
         
-        if not has_final_video:
-            logger.info(f"Video playable tidak ditemukan di stream utama untuk {url}, mencoba mirror...")
-
-        if not has_final_video:
-            # Ambil nonce dari script di halaman
-            nonce_match = re.search(r'action:"aa1208d27f29ca340c92c66d1926f13f"\}\)\.done\(\(\{data:a\}\)=>\{window\.__x__nonce=a', html)
-            if not nonce_match:
-                # Kadang nonce ada di tempat lain atau perlu di-fetch dulu
-                nonce_resp = await self._fetch(f"{self.base_url}/wp-admin/admin-ajax.php", method="POST", data={"action": "aa1208d27f29ca340c92c66d1926f13f"})
-                if nonce_resp:
-                    import json
-                    try:
-                        nonce_data = json.loads(nonce_resp)
-                        nonce = nonce_data.get("data")
-                    except:
-                        nonce = None
-                else:
-                    nonce = None
-            else:
-                # Nonce biasanya didapat via AJAX call terpisah, kita coba fetch manual saja
-                nonce_resp = await self._fetch(f"{self.base_url}/wp-admin/admin-ajax.php", method="POST", data={"action": "aa1208d27f29ca340c92c66d1926f13f"})
+        if not has_final_video or all_mirrors:
+            if not has_final_video:
+                logger.info(f"Video playable tidak ditemukan di stream utama untuk {url}, mencoba mirror...")
+            
+            # Fetch nonce
+            nonce_resp = await self._fetch(f"{self.base_url}/wp-admin/admin-ajax.php", method="POST", data={"action": "aa1208d27f29ca340c92c66d1926f13f"})
+            nonce = None
+            if nonce_resp:
                 import json
                 try:
                     nonce = json.loads(nonce_resp).get("data")
-                except:
-                    nonce = None
+                except: pass
 
             if nonce:
-                # Cek mirror 480p sebagai prioritas sesuai instruksi user
-                mirror_480p_links = parser.css("ul.m480p li a")
-                for a in mirror_480p_links:
-                    content = a.attributes.get("data-content")
-                    if content:
-                        import base64
-                        import json
-                        try:
-                            # Decode data-content
-                            decoded_content = json.loads(base64.b64decode(content).decode('utf-8'))
-                            # Request link video via AJAX
-                            ajax_data = {
-                                **decoded_content,
-                                "nonce": nonce,
-                                "action": "2a3505c93b0035d3f455df82bf976b84"
-                            }
-                            ajax_resp = await self._fetch(f"{self.base_url}/wp-admin/admin-ajax.php", method="POST", data=ajax_data)
-                            if ajax_resp:
-                                ajax_json = json.loads(ajax_resp)
-                                iframe_html = base64.b64decode(ajax_json.get("data")).decode('utf-8')
-                                # Ekstraksi src dari iframe_html
-                                src_match = re.search(r'src=["\'](.*?)["\']', iframe_html)
-                                if src_match:
-                                    final_url = src_match.group(1)
-                                    # Coba resolve jika desu, jika bukan desu tetap ambil (asal valid)
-                                    resolved = await self.resolve_desustream(final_url)
-                                    if resolved:
-                                        stream_links.append({
-                                            "provider": a.text().strip() or "Mirror",
-                                            "url": resolved
-                                        })
-                                        # Cukup ambil satu yang berhasil sesuai instruksi user (klik salah satu server)
-                                        break
-                        except Exception as e:
-                            logger.error(f"Error fetching mirror link: {e}")
-                            continue
+                # Cek semua resolusi mirror jika all_mirrors=True
+                target_ul = ["ul.m360p", "ul.m480p", "ul.m720p"] if all_mirrors else ["ul.m480p"]
+                
+                for ul_selector in target_ul:
+                    mirror_links = parser.css(f"{ul_selector} li a")
+                    for a in mirror_links:
+                        content = a.attributes.get("data-content")
+                        if content:
+                            import base64
+                            import json
+                            try:
+                                decoded_content = json.loads(base64.b64decode(content).decode('utf-8'))
+                                ajax_data = {
+                                    **decoded_content,
+                                    "nonce": nonce,
+                                    "action": "2a3505c93b0035d3f455df82bf976b84"
+                                }
+                                ajax_resp = await self._fetch(f"{self.base_url}/wp-admin/admin-ajax.php", method="POST", data=ajax_data)
+                                if ajax_resp:
+                                    ajax_json = json.loads(ajax_resp)
+                                    iframe_html = base64.b64decode(ajax_json.get("data")).decode('utf-8')
+                                    src_match = re.search(r'src=["\'](.*?)["\']', iframe_html)
+                                    if src_match:
+                                        final_url = src_match.group(1)
+                                        resolved = await self.resolve_desustream(final_url)
+                                        if resolved:
+                                            # Hindari duplikat URL
+                                            if not any(s['url'] == resolved for s in stream_links):
+                                                res_label = ul_selector.replace("ul.m", "")
+                                                stream_links.append({
+                                                    "provider": f"{a.text().strip()} ({res_label})",
+                                                    "url": resolved
+                                                })
+                                            if not all_mirrors: break # Ambil satu saja jika bukan mode all_mirrors
+                            except Exception as e:
+                                logger.error(f"Error fetching mirror link: {e}")
+                                continue
 
         # 2. Ekstraksi Download Links
         download_links = []
