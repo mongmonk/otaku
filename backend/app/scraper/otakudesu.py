@@ -30,6 +30,45 @@ class OtakuDesuScraper:
             logger.error(f"Error fetching {url}: {e}")
             return None
 
+    async def crawl_homepage(self) -> List[Dict[str, Any]]:
+        """
+        Mengambil daftar anime terbaru (Ongoing & Complete) langsung dari homepage.
+        """
+        html = await self._fetch(self.base_url)
+        if not html:
+            return []
+
+        parser = LexborHTMLParser(html)
+        anime_list = []
+        
+        # Mencari elemen anime di homepage (Ongoing & Complete)
+        # Struktur: div.venutama -> div.rdet -> div.detpost
+        nodes = parser.css("div.venutama div.detpost")
+        
+        for node in nodes:
+            try:
+                title_node = node.css_first("h2") or node.css_first("div.jdlflm")
+                link_node = node.css_first("a")
+                thumb_node = node.css_first("img")
+                
+                if title_node and link_node:
+                    anime_url = link_node.attributes.get("href")
+                    # Slug asli dari URL (digunakan sebagai fallback/ID unik awal)
+                    slug = anime_url.strip("/").split("/")[-1] if anime_url else ""
+                    
+                    anime_list.append({
+                        "title": title_node.text().strip(),
+                        "slug": slug,
+                        "url": anime_url,
+                        "poster_url": thumb_node.attributes.get("src") if thumb_node else None,
+                        "last_episode": node.css_first("div.epz").text().strip() if node.css_first("div.epz") else None,
+                    })
+            except Exception as e:
+                logger.error(f"Error parsing homepage item: {e}")
+                continue
+                
+        return anime_list
+
     async def crawl_ongoing(self) -> List[Dict[str, Any]]:
         url = f"{self.base_url}/ongoing-anime/"
         html = await self._fetch(url)
@@ -40,7 +79,6 @@ class OtakuDesuScraper:
         anime_list = []
         
         # Mencari elemen anime dalam list ongoing
-        # Berdasarkan struktur umum OtakuDesu: div.venutama -> div.detpost
         nodes = parser.css("div.venutama div.venul ul li, div.venutama div.detpost")
         
         for node in nodes:
@@ -51,7 +89,6 @@ class OtakuDesuScraper:
                 
                 if title_node and link_node:
                     anime_url = link_node.attributes.get("href")
-                    # Slug biasanya bagian terakhir dari URL
                     slug = anime_url.strip("/").split("/")[-1] if anime_url else ""
                     
                     anime_list.append({

@@ -14,6 +14,6 @@ Route::get('/studio/{studio}', [AnimeController::class, 'studio'])->name('anime.
 Route::get('/schedule', [AnimeController::class, 'list'])->name('anime.schedule');
 Route::get('/az-list', [AnimeController::class, 'azList'])->name('anime.az');
 Route::get('/anime/{slug}', [AnimeController::class, 'show'])->name('anime.show');
-Route::get('/episode/{slug}', [AnimeController::class, 'episode'])->name('episode.show');
+Route::get('/eps/{slug}.html', [AnimeController::class, 'episode'])->name('episode.show');
 Route::get('/genres/{slug}', [AnimeController::class, 'genre'])->name('genre.show');
 Route::get('/bookmarks', [AnimeController::class, 'bookmarks'])->name('anime.bookmarks');

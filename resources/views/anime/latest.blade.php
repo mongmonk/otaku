@@ -13,7 +13,7 @@
             @foreach($episodes as $episode)
             <article class="bs relative group">
                 <div class="bsx relative overflow-hidden rounded shadow-sm bg-white transition-transform duration-200 group-hover:-translate-y-1">
-                    <a href="{{ route('episode.show', $episode->episode_slug) }}" title="{{ $episode->anime->title }} Episode {{ $episode->episode_number }}">
+                    <a href="{{ route('episode.show', $episode->anime->slug . '-episode-' . $episode->episode_number) }}" title="{{ $episode->anime->title }} Episode {{ $episode->episode_number }}">
                         <div class="limit relative aspect-[3/4] overflow-hidden bg-gray-900">
                             <img src="{{ $episode->anime->poster_url }}" alt="{{ $episode->anime->title }}" class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110">
                             

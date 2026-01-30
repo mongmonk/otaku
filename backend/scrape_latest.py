@@ -38,9 +38,9 @@ async def scrape_latest():
     }
     
     try:
-        # 1. Ambil daftar anime ongoing/terbaru dari homepage
-        print("[1/3] Mengambil daftar anime terbaru dari homepage...")
-        latest_anime = await scraper.crawl_ongoing()
+        # 1. Ambil daftar anime terbaru (Ongoing & Complete) dari homepage
+        print("[1/3] Mengambil daftar anime terbaru (Ongoing & Complete) dari homepage...")
+        latest_anime = await scraper.crawl_homepage()
         print(f"Ditemukan {len(latest_anime)} anime di homepage.\n")
         
         if not latest_anime:

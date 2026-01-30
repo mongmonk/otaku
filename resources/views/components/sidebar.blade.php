@@ -80,7 +80,7 @@
                 @endphp
                 @foreach($ongoingEpisodes as $episode)
                 <li>
-                    <a href="{{ route('episode.show', $episode->episode_slug) }}" class="flex justify-between items-center px-2 py-2 hover:bg-gray-50 transition text-sm">
+                    <a href="{{ route('episode.show', $episode->anime->slug . '-episode-' . $episode->episode_number) }}" class="flex justify-between items-center px-2 py-2 hover:bg-gray-50 transition text-sm">
                         <span class="truncate text-gray-700"><i class="fas fa-angle-right mr-1 text-primary"></i> {{ $episode->anime->title }}</span>
                         <span class="flex-shrink-0 bg-primary text-white text-[10px] px-1.5 py-0.5 rounded ml-2">Ep {{ $episode->episode_number }}</span>
                     </a>

@@ -114,9 +114,9 @@
         <div class="p-4">
             <div class="overflow-y-auto max-h-96">
                 <ul class="divide-y divide-gray-100">
-                    @forelse($anime->episodes as $episode)
+                    @forelse($anime->episodes->sortByDesc('episode_number') as $episode)
                     <li>
-                        <a href="{{ route('episode.show', $episode->episode_slug) }}" class="flex items-center justify-between py-3 px-2 hover:bg-gray-50 transition group">
+                        <a href="{{ route('episode.show', $anime->slug . '-episode-' . $episode->episode_number) }}" class="flex items-center justify-between py-3 px-2 hover:bg-gray-50 transition group">
                             <div class="flex items-center gap-4">
                                 <span class="font-bold text-primary w-8">{{ $episode->episode_number }}</span>
                                 <span class="text-gray-700 font-medium group-hover:text-primary transition">{{ $episode->title }}</span>

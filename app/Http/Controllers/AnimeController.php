@@ -116,8 +116,23 @@ class AnimeController extends Controller
 
     public function episode($slug)
     {
+        // Format baru: {anime_slug}-episode-{eps}
+        // Kita cari berdasarkan episode_slug atau parsing slug baru jika diperlukan
+        // Namun karena database masih menggunakan episode_slug yang lama,
+        // kita perlu menyesuaikan pencarian.
+        
         $episode = Episode::with(['anime.episodes', 'streamLinks', 'downloadLinks'])
             ->where('episode_slug', $slug)
+            ->orWhere(function($query) use ($slug) {
+                if (preg_match('/^(.*)-episode-(\d+)$/', $slug, $matches)) {
+                    $animeSlug = $matches[1];
+                    $episodeNumber = $matches[2];
+                    $query->where('episode_number', $episodeNumber)
+                          ->whereHas('anime', function($q) use ($animeSlug) {
+                              $q->where('slug', $animeSlug);
+                          });
+                }
+            })
             ->firstOrFail();
 
         return view('anime.episode', compact('episode'));

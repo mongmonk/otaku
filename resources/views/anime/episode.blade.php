@@ -87,7 +87,7 @@
                 @endphp
                 
                 @if($prevEp)
-                <a href="{{ route('episode.show', $prevEp->episode_slug) }}" class="bg-gray-800 text-white px-3 py-1.5 rounded text-[10px] md:text-sm hover:bg-primary transition flex-1 md:flex-none text-center">
+                <a href="{{ route('episode.show', $prevEp->anime->slug . '-episode-' . $prevEp->episode_number) }}" class="bg-gray-800 text-white px-3 py-1.5 rounded text-[10px] md:text-sm hover:bg-primary transition flex-1 md:flex-none text-center">
                     <i class="fas fa-chevron-left md:mr-2"></i> <span class="hidden md:inline">Prev</span>
                 </a>
                 @endif
@@ -97,7 +97,7 @@
                 </a>
 
                 @if($nextEp)
-                <a href="{{ route('episode.show', $nextEp->episode_slug) }}" class="bg-gray-800 text-white px-3 py-1.5 rounded text-[10px] md:text-sm hover:bg-primary transition flex-1 md:flex-none text-center">
+                <a href="{{ route('episode.show', $nextEp->anime->slug . '-episode-' . $nextEp->episode_number) }}" class="bg-gray-800 text-white px-3 py-1.5 rounded text-[10px] md:text-sm hover:bg-primary transition flex-1 md:flex-none text-center">
                     <span class="hidden md:inline">Next</span> <i class="fas fa-chevron-right md:ml-2"></i>
                 </a>
                 @endif
@@ -205,9 +205,9 @@
         <div class="p-2 md:p-4">
             <div class="overflow-y-auto max-h-72 custom-scrollbar">
                 <ul class="divide-y divide-gray-100">
-                    @foreach($episode->anime->episodes->sortByDesc('id') as $ep)
+                    @foreach($episode->anime->episodes->sortByDesc('episode_number') as $ep)
                     <li>
-                        <a href="{{ route('episode.show', $ep->episode_slug) }}" class="flex items-center justify-between py-2 px-2 hover:bg-gray-50 transition group {{ $ep->id == $episode->id ? 'bg-blue-50' : '' }}">
+                        <a href="{{ route('episode.show', $episode->anime->slug . '-episode-' . $ep->episode_number) }}" class="flex items-center justify-between py-2 px-2 hover:bg-gray-50 transition group {{ $ep->id == $episode->id ? 'bg-blue-50' : '' }}">
                             <div class="flex items-center gap-3">
                                 <span class="font-bold {{ $ep->id == $episode->id ? 'text-primary' : 'text-gray-400' }} w-6 text-xs md:text-sm text-center">{{ $ep->episode_number }}</span>
                                 <span class="text-xs md:text-sm {{ $ep->id == $episode->id ? 'text-primary font-bold' : 'text-gray-700 font-medium' }} group-hover:text-primary transition line-clamp-1">{{ $ep->title }}</span>
