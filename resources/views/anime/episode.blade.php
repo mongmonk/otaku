@@ -263,4 +263,10 @@
         }
     }
 </script>
+<script type="text/javascript">
+    var accountID = 5816;
+    var adType = "int";
+    var domains = ["desustream.com"];
+</script>
+<script type="text/javascript" src="//bc.vc/js/link-converter.js"></script>
 @endsection
