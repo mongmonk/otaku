@@ -1,6 +1,48 @@
 import './bootstrap';
 
 document.addEventListener('DOMContentLoaded', function() {
+    // Dark Mode Logic
+    const htmlElement = document.documentElement;
+    const darkModeToggle = document.getElementById('dark-mode-toggle');
+    const moonIcon = document.querySelector('.dark-mode-hide');
+    const sunIcon = document.querySelector('.dark-mode-show');
+    const currentTheme = localStorage.getItem('theme') || 'light';
+
+    function updateIcons(isDark) {
+        if (moonIcon && sunIcon) {
+            if (isDark) {
+                moonIcon.style.display = 'none';
+                sunIcon.style.display = 'inline-block';
+            } else {
+                moonIcon.style.display = 'inline-block';
+                sunIcon.style.display = 'none';
+            }
+        }
+    }
+
+    // Set initial theme
+    if (currentTheme === 'dark') {
+        htmlElement.classList.add('dark');
+        if (darkModeToggle) darkModeToggle.checked = true;
+        updateIcons(true);
+    } else {
+        updateIcons(false);
+    }
+
+    if (darkModeToggle) {
+        darkModeToggle.addEventListener('change', function() {
+            if (this.checked) {
+                htmlElement.classList.add('dark');
+                localStorage.setItem('theme', 'dark');
+                updateIcons(true);
+            } else {
+                htmlElement.classList.remove('dark');
+                localStorage.setItem('theme', 'light');
+                updateIcons(false);
+            }
+        });
+    }
+
     const bookmarkBtn = document.getElementById('bookmark-btn');
     if (bookmarkBtn) {
         const animeId = bookmarkBtn.dataset.id;
@@ -55,5 +97,15 @@ document.addEventListener('DOMContentLoaded', function() {
                 text.textContent = 'Bookmark';
             }
         }
+    }
+
+    // Mobile Menu Toggle
+    const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+    const mainMenu = document.getElementById('main-menu');
+
+    if (mobileMenuBtn && mainMenu) {
+        mobileMenuBtn.addEventListener('click', function() {
+            mainMenu.classList.toggle('hidden');
+        });
     }
 });

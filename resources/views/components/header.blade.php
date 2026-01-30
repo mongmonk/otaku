@@ -2,7 +2,7 @@
     <div class="max-w-7xl mx-auto px-4 flex justify-between items-center">
         <div class="flex items-center gap-8">
             <a href="{{ route('home') }}" class="flex items-center">
-                <img src="https://animestream.themesia.com/wp-content/uploads/2023/01/animestream-dark.png" alt="Logo" class="h-9">
+                <img src="{{ asset('indanime.png') }}" alt="Logo" class="h-9">
             </a>
             <div class="hidden md:block w-80">
                 <form action="{{ route('anime.search') }}" method="GET" class="relative">
@@ -14,6 +14,16 @@
             </div>
         </div>
         <div class="flex items-center gap-4 text-sm text-gray-600">
+            <div class="flex items-center mr-2">
+                <label class="theme-switch" for="dark-mode-toggle">
+                    <input type="checkbox" id="dark-mode-toggle">
+                    <span class="slider"></span>
+                </label>
+                <span class="ml-2 text-lg">
+                    <i class="fas fa-moon text-gray-400 dark-mode-hide"></i>
+                    <i class="fas fa-sun text-yellow-400 dark-mode-show" style="display:none;"></i>
+                </span>
+            </div>
             <div class="hidden lg:flex items-center gap-3">
                 <a href="{{ route('anime.completed') }}" class="hover:text-blue-600 transition">Completed</a>
                 <a href="{{ route('anime.latest') }}" class="hover:text-blue-600 transition">Latest</a>
@@ -23,7 +33,7 @@
                     Bookmark
                 </a>
             </div>
-            <button class="md:hidden text-2xl text-gray-600">
+            <button id="mobile-menu-btn" class="md:hidden text-2xl text-gray-600 focus:outline-none">
                 <i class="fas fa-bars"></i>
             </button>
         </div>

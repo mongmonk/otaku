@@ -108,7 +108,7 @@ class AnimeController extends Controller
     public function show($slug)
     {
         $anime = Anime::with(['genres', 'episodes' => function($q) {
-            $q->orderBy('id', 'desc');
+            $q->orderBy('id', 'asc');
         }])->where('slug', $slug)->firstOrFail();
 
         return view('anime.show', compact('anime'));

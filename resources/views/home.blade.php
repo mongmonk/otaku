@@ -1,13 +1,31 @@
 @extends('layouts.app')
 
-@section('title', 'Home')
+@section('title', 'Nonton Anime Streaming Sub Indo Gratis')
+@section('meta_description', 'Indanime Reborn adalah situs nonton anime streaming sub indo gratis dengan koleksi terlengkap dan kualitas HD. Update anime terbaru setiap hari.')
+@section('meta_keywords', 'nonton anime, anime sub indo, streaming anime gratis, indanime reborn, anime terbaru')
+
+@section('schema')
+<script type="application/ld+json">
+{
+  "@@context": "https://schema.org",
+  "@@type": "WebSite",
+  "name": "Indanime Reborn",
+  "url": "{{ url('/') }}",
+  "potentialAction": {
+    "@@type": "SearchAction",
+    "target": "{{ url('/search') }}?q={search_term_string}",
+    "query-input": "required name=search_term_string"
+  }
+}
+</script>
+@endsection
 
 @section('content')
 <div class="space-y-8">
     {{-- Hot/Latest Section --}}
     <section class="bg-white rounded shadow-sm overflow-hidden">
         <div class="bg-primary text-white px-4 py-2 flex justify-between items-baseline">
-            <h2 class="font-bold uppercase text-sm tracking-wider">LATEST ANIME</h2>
+            <h1 class="font-bold uppercase text-sm tracking-wider">LATEST ANIME STREAMING</h1>
             <a href="{{ route('anime.index') }}" class="text-[10px] bg-white text-gray-800 px-2 py-0.5 rounded font-bold hover:bg-gray-200 transition">VIEW ALL</a>
         </div>
         <div class="p-4 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">

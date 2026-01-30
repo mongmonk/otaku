@@ -13,9 +13,9 @@
     <div class="max-w-7xl mx-auto px-4 py-8">
         <div class="flex flex-col md:flex-row justify-between items-center gap-6">
             <div class="flex items-center gap-4">
-                <img src="https://animestream.themesia.com/wp-content/uploads/2023/01/animestream-dark.png" alt="Logo" class="h-12 brightness-0 invert">
+                <img src="{{ asset('indanime_logo.png') }}" alt="Logo" class="h-12 brightness-0 invert">
                 <div class="text-left">
-                    <p class="text-sm font-semibold">Copyright © 2025 OtakuStream. All Rights Reserved</p>
+                    <p class="text-sm font-semibold">Copyleft © {{ date('Y') }} Indanime Reborn. All Rights Reserved</p>
                     <p class="text-[10px] text-gray-400 mt-1 max-w-md">Disclaimer: This site does not store any files on its server. All contents are provided by non-affiliated third parties.</p>
                 </div>
             </div>

@@ -1,6 +1,33 @@
 @extends('layouts.app')
 
-@section('title', $anime->title)
+@section('title', 'Nonton ' . $anime->title . ' Subtitle Indonesia')
+@section('meta_description', 'Nonton anime ' . $anime->title . ' Sub Indo gratis. ' . Str::limit($anime->synopsis, 150))
+@section('meta_keywords', $anime->title . ' sub indo, nonton ' . $anime->title . ', streaming ' . $anime->title . ', ' . implode(', ', $anime->genres->pluck('name')->toArray()))
+@section('og_image', $anime->poster_url)
+@section('og_type', 'video.tv_show')
+
+@section('schema')
+<script type="application/ld+json">
+{
+  "@@context": "https://schema.org",
+  "@@type": "TVSeries",
+  "name": "{{ $anime->title }}",
+  "description": "{{ $anime->synopsis }}",
+  "image": "{{ $anime->poster_url }}",
+  "genre": [
+    @foreach($anime->genres as $genre)
+    "{{ $genre->name }}"{{ !$loop->last ? ',' : '' }}
+    @endforeach
+  ],
+  "aggregateRating": {
+    "@@type": "AggregateRating",
+    "ratingValue": "{{ $anime->score }}",
+    "bestRating": "10",
+    "worstRating": "1"
+  }
+}
+</script>
+@endsection
 
 @section('content')
 <div class="space-y-6">
