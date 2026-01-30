@@ -2,7 +2,7 @@
     <div class="max-w-7xl mx-auto px-4 flex justify-between items-center">
         <div class="flex items-center gap-8">
             <a href="{{ route('home') }}" class="flex items-center">
-                <img src="{{ asset('indanime.png') }}" alt="Logo" class="h-9">
+                <img src="{{ asset('indanime.png') }}" alt="Logo" class="h-7 md:h-9">
             </a>
             <div class="hidden md:block w-80">
                 <form action="{{ route('anime.search') }}" method="GET" class="relative">

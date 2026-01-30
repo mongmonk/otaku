@@ -24,6 +24,12 @@
 
     <title>@yield('title', 'Indanime Reborn') - Anime Streaming</title>
     <link rel="icon" type="image/png" href="{{ asset('haoshokuicon.png') }}">
+    
+    <!-- PWA -->
+    <meta name="theme-color" content="#1a202c">
+    <link rel="apple-touch-icon" href="{{ asset('indanime.png') }}">
+    <link rel="manifest" href="{{ asset('manifest.json') }}">
+
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
