@@ -13,11 +13,11 @@ class Anime extends Model
 
     public function genres(): BelongsToMany
     {
-        return $this->belongsToMany(Genre::class, 'anime_genres', 'anime_slug', 'genre_slug', 'slug', 'slug');
+        return $this->belongsToMany(Genre::class, 'anime_genres', 'anime_id', 'genre_slug', 'id', 'slug');
     }
 
     public function episodes(): HasMany
     {
-        return $this->hasMany(Episode::class, 'anime_slug', 'slug');
+        return $this->hasMany(Episode::class, 'anime_id', 'id');
     }
 }

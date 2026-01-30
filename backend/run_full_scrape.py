@@ -124,7 +124,7 @@ async def process_anime(scraper, item, stats, semaphore, stop_event):
                             
                             num_links = len(filtered_dl) + len(sl_links)
                             
-                            await save_episode(db, anime.slug, ep)
+                            await save_episode(db, anime.id, ep)
                             stats["total_episodes"] += 1
                             stats["total_links"] += num_links
 

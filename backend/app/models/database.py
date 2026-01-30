@@ -7,7 +7,7 @@ Base = declarative_base()
 anime_genres = Table(
     "anime_genres",
     Base.metadata,
-    Column("anime_slug", String(255), ForeignKey("animes.slug", ondelete="CASCADE"), primary_key=True),
+    Column("anime_id", Integer, ForeignKey("animes.id", ondelete="CASCADE"), primary_key=True),
     Column("genre_slug", String(100), ForeignKey("genres.slug", ondelete="CASCADE"), primary_key=True),
 )
 
@@ -44,7 +44,7 @@ class Episode(Base):
     __tablename__ = "episodes"
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    anime_slug = Column(String(255), ForeignKey("animes.slug", ondelete="CASCADE", onupdate="CASCADE"), nullable=False)
+    anime_id = Column(Integer, ForeignKey("animes.id", ondelete="CASCADE", onupdate="CASCADE"), nullable=False)
     title = Column(String(255), nullable=False)
     episode_number = Column(String(50))
     episode_slug = Column(String(255), unique=True, nullable=False)

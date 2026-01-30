@@ -67,7 +67,7 @@ async def save_anime(db: AsyncSession, anime_data: dict):
     await db.refresh(anime)
     return anime
 
-async def save_episode(db: AsyncSession, anime_slug: str, episode_data: dict):
+async def save_episode(db: AsyncSession, anime_id: int, episode_data: dict):
     """
     Menyimpan atau memperbarui data episode serta link download/stream.
     """
@@ -89,10 +89,10 @@ async def save_episode(db: AsyncSession, anime_slug: str, episode_data: dict):
         # Update existing episode
         for key, value in episode_data.items():
             setattr(episode, key, value)
-        episode.anime_slug = anime_slug
+        episode.anime_id = anime_id
     else:
         # Create new episode
-        episode = Episode(**episode_data, anime_slug=anime_slug)
+        episode = Episode(**episode_data, anime_id=anime_id)
         db.add(episode)
     
     await db.flush() # Mendapatkan ID episode jika baru

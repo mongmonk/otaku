@@ -13,7 +13,7 @@ class Episode extends Model
 
     public function anime(): BelongsTo
     {
-        return $this->belongsTo(Anime::class, 'anime_slug', 'slug');
+        return $this->belongsTo(Anime::class, 'anime_id', 'id');
     }
 
     public function streamLinks(): HasMany

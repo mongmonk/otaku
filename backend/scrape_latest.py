@@ -74,16 +74,32 @@ async def scrape_latest():
                             for ep in episodes_data[:3]:
                                 print(f"   [*] Memproses Episode: {ep['title']}...")
                                 
-                                # Ambil SEMUA link streaming (all_mirrors=True)
+                                # Ambil SEMUA link streaming (all_mirrors=True) dan link download
                                 links = await scraper.get_episode_links(ep["url"], all_mirrors=True)
                                 ep["stream_links"] = links.get("stream_links", [])
-                                ep["download_links"] = [] # Bisa ditambahkan filter download jika perlu
+                                
+                                # Filter download links (360p, 480p, 720p)
+                                all_dl_links = links.get("download_links", [])
+                                filtered_dl = []
+                                target_resolutions = ["360p", "480p", "720p"]
+                                
+                                for res in target_resolutions:
+                                    res_links = [l for l in all_dl_links if res in l.get("resolution", "")]
+                                    if res_links:
+                                        # Prioritaskan OtakuFiles/ODFiles
+                                        otaku_file_link = next((l for l in res_links if "OtakuFiles" in l.get("provider", "") or "ODFiles" in l.get("provider", "")), None)
+                                        if otaku_file_link:
+                                            filtered_dl.append(otaku_file_link)
+                                        else:
+                                            filtered_dl.append(res_links[0])
+                                
+                                ep["download_links"] = filtered_dl
                                 
                                 # Ekstraksi episode number
                                 ep_num_match = re.search(r'Episode\s+(\d+)', ep.get("title", ""))
                                 ep["episode_number"] = ep_num_match.group(1) if ep_num_match else None
                                 
-                                await save_episode(db, anime.slug, ep)
+                                await save_episode(db, anime.id, ep)
                                 stats["episodes_saved"] += 1
                                 
                             await db.commit()
