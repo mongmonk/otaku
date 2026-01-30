@@ -1,8 +1,8 @@
 <footer class="bg-[#222] text-white mt-12">
     <div class="bg-primary py-2 text-center text-sm">
         <ul class="flex justify-center space-x-6">
-            <li><a href="#" class="hover:underline">Sample Page</a></li>
-            <li><a href="#" class="hover:underline">Schedule</a></li>
+            <li><a href="{{ route('anime.index') }}" class="hover:underline">Sample Page</a></li>
+            <li><a href="{{ route('anime.schedule') }}" class="hover:underline">Schedule</a></li>
         </ul>
     </div>
     <div class="max-w-7xl mx-auto px-4 py-8">

@@ -4,23 +4,23 @@
             <h3 class="font-bold text-gray-700">Filter Search</h3>
         </div>
         <div class="p-4">
-            <form action="#" method="GET" class="space-y-3">
+            <form action="{{ route('anime.search') }}" method="GET" class="space-y-3">
                 <div>
                     @php
                         $genres = \App\Models\Genre::orderBy('name')->get();
                     @endphp
-                    <select name="genre" onchange="if(this.value) window.location.href='/genres/'+this.value" class="w-full border border-gray-300 rounded px-2 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-primary">
+                    <select name="genre" class="w-full border border-gray-300 rounded px-2 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-primary">
                         <option value="">Select Genre</option>
                         @foreach($genres as $genre)
-                            <option value="{{ $genre->slug }}">{{ $genre->name }}</option>
+                            <option value="{{ $genre->slug }}" {{ request('genre') == $genre->slug ? 'selected' : '' }}>{{ $genre->name }}</option>
                         @endforeach
                     </select>
                 </div>
                 <div>
                     <select name="status" class="w-full border border-gray-300 rounded px-2 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-primary">
                         <option value="">Status</option>
-                        <option value="Ongoing">Ongoing</option>
-                        <option value="Completed">Completed</option>
+                        <option value="Ongoing" {{ request('status') == 'Ongoing' ? 'selected' : '' }}>Ongoing</option>
+                        <option value="Completed" {{ request('status') == 'Completed' ? 'selected' : '' }}>Completed</option>
                     </select>
                 </div>
                 <button type="submit" class="w-full bg-primary text-white py-1.5 rounded text-sm font-semibold hover:bg-blue-700 transition">

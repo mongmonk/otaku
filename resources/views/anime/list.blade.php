@@ -5,7 +5,19 @@
 @section('content')
 <div class="bixbox">
     <div class="releases flex justify-between items-center px-4 py-3 border-b border-gray-200">
-        <h1 class="text-xl font-bold text-gray-800">Anime List</h1>
+        <h1 class="text-xl font-bold text-gray-800">
+            @if(isset($studio))
+                Anime List Studio: {{ $studio }}
+            @elseif(isset($genre))
+                Anime List Genre: {{ $genre->name }}
+            @elseif(isset($status) && $status === 'Completed')
+                Anime List Completed
+            @elseif(isset($isPopular))
+                Popular Anime List
+            @else
+                Anime List
+            @endif
+        </h1>
     </div>
     
     <div class="listupd p-4">
@@ -16,7 +28,7 @@
                     <a href="{{ route('anime.show', $anime->slug) }}" title="{{ $anime->title }}">
                         <div class="limit relative aspect-[3/4] overflow-hidden bg-gray-900">
                             @if($anime->status)
-                            <div class="status absolute top-2 left-[-30px] bg-red-600 text-white text-[10px] py-0.5 w-[100px] text-center rotate-[-45deg] z-10 uppercase font-bold">
+                            <div class="status absolute" style="top: 10px; left: -30px; background-color: #dc2626; color: white; font-size: 10px; padding: 2px 0; width: 100px; text-align: center; transform: rotate(-45deg); z-index: 10; text-transform: uppercase; font-weight: bold; box-shadow: 0 1px 2px rgba(0,0,0,0.1);">
                                 {{ $anime->status }}
                             </div>
                             @endif
@@ -27,8 +39,8 @@
                             <div class="ply absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                                 <i class="far fa-play-circle text-5xl text-white"></i>
                             </div>
-                            <div class="bt absolute bottom-0 left-0 right-0 p-2 bg-gradient-to-t from-black/90 to-transparent">
-                                <span class="epx text-white text-xs block truncate">{{ $anime->total_episode ?? '?' }} Episodes</span>
+                            <div class="bt absolute" style="bottom: 8px; left: 8px; z-index: 20;">
+                                <span class="epx text-white text-[10px] font-bold px-2 py-1 rounded shadow-lg" style="background-color: #0ea5e9; display: inline-block;">{{ $anime->total_episode ?? '?' }} Episodes</span>
                             </div>
                         </div>
                         <div class="tt p-2 text-center">

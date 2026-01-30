@@ -8,7 +8,7 @@
     <section class="bg-white rounded shadow-sm overflow-hidden">
         <div class="bg-primary text-white px-4 py-2 flex justify-between items-baseline">
             <h2 class="font-bold uppercase text-sm tracking-wider">LATEST ANIME</h2>
-            <a href="#" class="text-[10px] bg-white text-gray-800 px-2 py-0.5 rounded font-bold hover:bg-gray-200 transition">VIEW ALL</a>
+            <a href="{{ route('anime.index') }}" class="text-[10px] bg-white text-gray-800 px-2 py-0.5 rounded font-bold hover:bg-gray-200 transition">VIEW ALL</a>
         </div>
         <div class="p-4 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
             @foreach($latestAnimes as $anime)
@@ -38,7 +38,7 @@
     <section class="bg-white rounded shadow-sm overflow-hidden">
         <div class="bg-[#694ba1] text-white px-4 py-2 flex justify-between items-baseline">
             <h2 class="font-bold uppercase text-sm tracking-wider">POPULAR ANIME</h2>
-            <a href="#" class="text-[10px] bg-white text-gray-800 px-2 py-0.5 rounded font-bold hover:bg-gray-200 transition">VIEW ALL</a>
+            <a href="{{ route('anime.popular') }}" class="text-[10px] bg-white text-gray-800 px-2 py-0.5 rounded font-bold hover:bg-gray-200 transition">VIEW ALL</a>
         </div>
         <div class="p-4 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
             @foreach($popularAnimes as $anime)

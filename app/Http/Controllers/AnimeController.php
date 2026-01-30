@@ -12,7 +12,7 @@ class AnimeController extends Controller
     public function index()
     {
         $latestAnimes = Anime::latest('updated_at')->take(10)->get();
-        $popularAnimes = Anime::orderBy('score', 'desc')->take(10)->get();
+        $popularAnimes = Anime::orderBy('score', 'desc')->where('score', '>', 0)->take(10)->get();
         $ongoingAnimes = Anime::where('status', 'Ongoing')->latest('updated_at')->take(10)->get();
 
         return view('home', compact('latestAnimes', 'popularAnimes', 'ongoingAnimes'));
@@ -20,7 +20,69 @@ class AnimeController extends Controller
 
     public function list()
     {
-        $animes = Anime::orderBy('title', 'asc')->paginate(20);
+        $animes = Anime::latest('updated_at')->paginate(20);
+        return view('anime.list', compact('animes'));
+    }
+
+    public function latest()
+    {
+        $episodes = Episode::with('anime')->latest('updated_at')->paginate(20);
+        return view('anime.latest', compact('episodes'));
+    }
+
+    public function studios()
+    {
+        $studios = Anime::select('studio', \DB::raw('count(*) as total'))
+            ->whereNotNull('studio')
+            ->groupBy('studio')
+            ->orderBy('studio')
+            ->get();
+        return view('anime.studios', compact('studios'));
+    }
+
+    public function studio($studio)
+    {
+        $animes = Anime::where('studio', $studio)->latest('updated_at')->paginate(20);
+        return view('anime.list', compact('animes', 'studio'));
+    }
+
+    public function completed()
+    {
+        $animes = Anime::where('status', 'Completed')->latest('updated_at')->paginate(20);
+        $status = 'Completed';
+        return view('anime.list', compact('animes', 'status'));
+    }
+
+    public function popular()
+    {
+        $animes = Anime::orderBy('score', 'desc')->where('score', '>', 0)->paginate(20);
+        $isPopular = true;
+        return view('anime.list', compact('animes', 'isPopular'));
+    }
+
+    public function search(Request $request)
+    {
+        $search = $request->get('s');
+        $status = $request->get('status');
+        $genre = $request->get('genre');
+
+        $query = Anime::query();
+
+        if ($search) {
+            $query->where('title', 'like', '%' . $search . '%');
+        }
+
+        if ($status) {
+            $query->where('status', $status);
+        }
+
+        if ($genre) {
+            $query->whereHas('genres', function($q) use ($genre) {
+                $q->where('slug', $genre);
+            });
+        }
+
+        $animes = $query->orderBy('title', 'asc')->paginate(20);
         return view('anime.list', compact('animes'));
     }
 
