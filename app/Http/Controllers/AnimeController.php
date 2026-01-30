@@ -46,6 +46,14 @@ class AnimeController extends Controller
         return view('anime.list', compact('animes', 'studio'));
     }
 
+    public function genres()
+    {
+        $genres = Genre::withCount('animes')
+            ->orderBy('name')
+            ->get();
+        return view('anime.genres', compact('genres'));
+    }
+
     public function completed()
     {
         $animes = Anime::where('status', 'Completed')->latest('updated_at')->paginate(20);

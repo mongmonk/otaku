@@ -167,6 +167,7 @@
                     <li><a href="{{ route('home') }}" class="hover:bg-black/20 px-3 py-2 rounded transition">Home</a></li>
                     <li><a href="{{ route('anime.index') }}" class="hover:bg-black/20 px-3 py-2 rounded transition">Anime Lists</a></li>
                     <li><a href="{{ route('anime.az') }}" class="hover:bg-black/20 px-3 py-2 rounded transition">AZ Lists</a></li>
+                    <li><a href="{{ route('anime.genres') }}" class="hover:bg-black/20 px-3 py-2 rounded transition">Genre</a></li>
                 </ul>
             </div>
         </nav>

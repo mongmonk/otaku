@@ -7,6 +7,7 @@
             <li style="margin: 0.25rem 0.75rem;"><a href="{{ route('anime.completed') }}" style="color: white; text-decoration: none;" onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">Completed</a></li>
             <li style="margin: 0.25rem 0.75rem;"><a href="{{ route('anime.latest') }}" style="color: white; text-decoration: none;" onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">Latest</a></li>
             <li style="margin: 0.25rem 0.75rem;"><a href="{{ route('anime.studios') }}" style="color: white; text-decoration: none;" onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">Studio</a></li>
+            <li style="margin: 0.25rem 0.75rem;"><a href="{{ route('anime.genres') }}" style="color: white; text-decoration: none;" onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">Genre</a></li>
             <li style="margin: 0.25rem 0.75rem;"><a href="{{ route('anime.bookmarks') }}" style="color: white; text-decoration: none;" onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">Bookmark</a></li>
         </ul>
     </div>
