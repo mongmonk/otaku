@@ -35,7 +35,11 @@
                     <div class="aspect-[3/4] relative">
                         <img src="{{ $anime->poster_url }}" alt="{{ $anime->title }}" class="w-full h-full object-cover">
                         <div class="absolute top-0 right-0 bg-red-600 text-white text-[10px] px-2 py-1 rounded-bl font-bold shadow-sm">
-                            {{ $anime->status }}
+                            @if($anime->episodes->first())
+                                Episode {{ $anime->episodes->first()->episode_number ?? '?' }}
+                            @else
+                                {{ $anime->status }}
+                            @endif
                         </div>
                         <div class="absolute bottom-0 left-0 w-full p-3 bg-gradient-to-t from-black via-black/60 to-transparent">
                             <h3 class="text-white text-xs font-bold text-center leading-tight line-clamp-2 group-hover:text-primary transition">

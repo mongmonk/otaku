@@ -11,11 +11,18 @@ class AnimeController extends Controller
 {
     public function index()
     {
-        $latestAnimes = Anime::latest('updated_at')->take(10)->get();
-        $popularAnimes = Anime::orderBy('score', 'desc')->where('score', '>', 0)->take(10)->get();
-        $ongoingAnimes = Anime::where('status', 'Ongoing')->latest('updated_at')->take(10)->get();
+        // Ambil anime yang baru saja diupdate episodenya, prioritaskan yang Ongoing
+        $latestAnimes = Anime::with(['episodes' => function($q) {
+                $q->latest('id');
+            }])
+            ->where('status', 'Ongoing')
+            ->orderBy('updated_at', 'desc')
+            ->take(10)
+            ->get();
 
-        return view('home', compact('latestAnimes', 'popularAnimes', 'ongoingAnimes'));
+        $popularAnimes = Anime::orderBy('score', 'desc')->where('score', '>', 0)->take(10)->get();
+        
+        return view('home', compact('latestAnimes', 'popularAnimes'));
     }
 
     public function list()
