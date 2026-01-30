@@ -1,8 +1,13 @@
 <footer class="bg-[#222] text-white mt-12">
     <div class="bg-primary py-2 text-center text-sm">
-        <ul class="flex justify-center space-x-6">
-            <li><a href="{{ route('anime.index') }}" class="hover:underline">Sample Page</a></li>
-            <li><a href="{{ route('anime.schedule') }}" class="hover:underline">Schedule</a></li>
+        <ul style="display: flex; flex-wrap: wrap; justify-content: center; align-items: center; padding: 0 1rem; list-style: none;">
+            <li style="margin: 0.25rem 0.75rem;"><a href="{{ route('home') }}" style="color: white; text-decoration: none;" onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">Home</a></li>
+            <li style="margin: 0.25rem 0.75rem;"><a href="{{ route('anime.index') }}" style="color: white; text-decoration: none;" onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">Anime Lists</a></li>
+            <li style="margin: 0.25rem 0.75rem;"><a href="{{ route('anime.az') }}" style="color: white; text-decoration: none;" onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">AZ Lists</a></li>
+            <li style="margin: 0.25rem 0.75rem;"><a href="{{ route('anime.completed') }}" style="color: white; text-decoration: none;" onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">Completed</a></li>
+            <li style="margin: 0.25rem 0.75rem;"><a href="{{ route('anime.latest') }}" style="color: white; text-decoration: none;" onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">Latest</a></li>
+            <li style="margin: 0.25rem 0.75rem;"><a href="{{ route('anime.studios') }}" style="color: white; text-decoration: none;" onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">Studio</a></li>
+            <li style="margin: 0.25rem 0.75rem;"><a href="{{ route('anime.bookmarks') }}" style="color: white; text-decoration: none;" onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">Bookmark</a></li>
         </ul>
     </div>
     <div class="max-w-7xl mx-auto px-4 py-8">

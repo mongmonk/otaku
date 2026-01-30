@@ -18,6 +18,10 @@
                 <a href="{{ route('anime.completed') }}" class="hover:text-blue-600 transition">Completed</a>
                 <a href="{{ route('anime.latest') }}" class="hover:text-blue-600 transition">Latest</a>
                 <a href="{{ route('anime.studios') }}" class="hover:text-blue-600 transition">Studio</a>
+                <a href="{{ route('anime.bookmarks') }}" class="hover:text-blue-600 transition flex items-center gap-1">
+                    <i class="fas fa-bookmark text-primary"></i>
+                    Bookmark
+                </a>
             </div>
             <button class="md:hidden text-2xl text-gray-600">
                 <i class="fas fa-bars"></i>

@@ -25,8 +25,9 @@
                             <div class="bg-yellow-400 h-full" style="width: {{ $anime->score * 10 }}%"></div>
                         </div>
                     </div>
-                    <button class="w-full bg-primary text-white py-2 rounded font-semibold hover:bg-blue-700 transition">
-                        <i class="far fa-bookmark mr-2"></i> Bookmark
+                    <button id="bookmark-btn" data-id="{{ $anime->id }}" data-title="{{ $anime->title }}" data-poster="{{ $anime->poster_url }}" data-slug="{{ $anime->slug }}" class="w-full bg-primary text-white py-2 rounded font-semibold hover:bg-blue-700 transition flex items-center justify-center gap-2">
+                        <i class="far fa-bookmark"></i>
+                        <span>Bookmark</span>
                     </button>
                 </div>
             </div>

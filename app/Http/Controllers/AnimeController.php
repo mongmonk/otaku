@@ -130,4 +130,9 @@ class AnimeController extends Controller
 
         return view('anime.genre', compact('genre', 'animes'));
     }
+
+    public function bookmarks()
+    {
+        return view('anime.bookmarks');
+    }
 }
