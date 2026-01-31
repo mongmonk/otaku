@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class DownloadLink extends Model
 {
     protected $table = 'download_links';
+
     protected $guarded = [];
 
     public function episode(): BelongsTo

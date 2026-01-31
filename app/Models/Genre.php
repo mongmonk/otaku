@@ -8,9 +8,13 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 class Genre extends Model
 {
     protected $table = 'genres';
+
     protected $primaryKey = 'slug';
+
     public $incrementing = false;
+
     protected $keyType = 'string';
+
     protected $guarded = [];
 
     public function animes(): BelongsToMany

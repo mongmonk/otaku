@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class Episode extends Model
 {
     protected $table = 'episodes';
+
     protected $guarded = [];
 
     public function anime(): BelongsTo

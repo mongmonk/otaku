@@ -6,11 +6,11 @@ use App\Models\Anime;
 use App\Models\Episode;
 use App\Models\Genre;
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\URL;
 
 class GenerateSitemap extends Command
 {
     protected $signature = 'sitemap:generate';
+
     protected $description = 'Generate sitemap.xml file in public directory';
 
     public function handle()
@@ -74,22 +74,22 @@ class GenerateSitemap extends Command
             ];
         }
 
-        $xml = '<?xml version="1.0" encoding="UTF-8"?>' . PHP_EOL;
-        $xml .= '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">' . PHP_EOL;
+        $xml = '<?xml version="1.0" encoding="UTF-8"?>'.PHP_EOL;
+        $xml .= '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'.PHP_EOL;
 
         foreach ($urls as $url) {
-            $xml .= '    <url>' . PHP_EOL;
-            $xml .= '        <loc>' . htmlspecialchars($url['loc']) . '</loc>' . PHP_EOL;
-            $xml .= '        <lastmod>' . $url['lastmod'] . '</lastmod>' . PHP_EOL;
-            $xml .= '        <changefreq>' . $url['changefreq'] . '</changefreq>' . PHP_EOL;
-            $xml .= '        <priority>' . $url['priority'] . '</priority>' . PHP_EOL;
-            $xml .= '    </url>' . PHP_EOL;
+            $xml .= '    <url>'.PHP_EOL;
+            $xml .= '        <loc>'.htmlspecialchars($url['loc']).'</loc>'.PHP_EOL;
+            $xml .= '        <lastmod>'.$url['lastmod'].'</lastmod>'.PHP_EOL;
+            $xml .= '        <changefreq>'.$url['changefreq'].'</changefreq>'.PHP_EOL;
+            $xml .= '        <priority>'.$url['priority'].'</priority>'.PHP_EOL;
+            $xml .= '    </url>'.PHP_EOL;
         }
 
         $xml .= '</urlset>';
 
         file_put_contents(public_path('sitemap.xml'), $xml);
 
-        $this->info('sitemap.xml has been generated successfully in ' . public_path('sitemap.xml'));
+        $this->info('sitemap.xml has been generated successfully in '.public_path('sitemap.xml'));
     }
 }

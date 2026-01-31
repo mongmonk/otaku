@@ -5,16 +5,15 @@
  * Menyertakan: Animes, Genres, Anime_Genres, Episodes, Stream_Links, Download_Links
  * Dibuat oleh Kilo Code
  */
-
 $host = '127.0.0.1';
 $user = 'root';
 $pass = '';
 $db_source = 'animes';
 $db_target = 'otaku';
 $source_poster_dir = 'C:/laragon/www/animes/public/storage/posters';
-$target_poster_dir = __DIR__ . '/public/posters';
+$target_poster_dir = __DIR__.'/public/posters';
 
-if (!is_dir($target_poster_dir)) {
+if (! is_dir($target_poster_dir)) {
     mkdir($target_poster_dir, 0755, true);
 }
 
@@ -34,13 +33,13 @@ try {
         $stmtGenre->execute([
             ':slug' => $g['slug'],
             ':name' => $g['name'],
-            ':created_at' => $g['created_at'] ?? date('Y-m-d H:i:s')
+            ':created_at' => $g['created_at'] ?? date('Y-m-d H:i:s'),
         ]);
     }
 
     // 2. Ambil Anime yang belum ada
     $animes = $pdo->query("SELECT * FROM $db_source.animes WHERE slug NOT IN (SELECT slug FROM $db_target.animes)")->fetchAll();
-    echo "Ditemukan " . count($animes) . " anime baru.\n";
+    echo 'Ditemukan '.count($animes)." anime baru.\n";
 
     $stmtAnime = $pdo->prepare("
         INSERT INTO $db_target.animes 
@@ -49,7 +48,7 @@ try {
     ");
 
     $stmtAnimeGenre = $pdo->prepare("INSERT IGNORE INTO $db_target.anime_genres (anime_id, genre_slug) VALUES (:aid, :gslug)");
-    
+
     $stmtEpisode = $pdo->prepare("
         INSERT INTO $db_target.episodes (anime_id, title, episode_number, episode_slug, created_at, updated_at)
         VALUES (:aid, :title, :enum, :eslug, :ca, :ua)
@@ -63,10 +62,10 @@ try {
         try {
             // Copy Poster
             $poster_val = $anime['poster_url'];
-            if (!empty($poster_val) && !filter_var($poster_val, FILTER_VALIDATE_URL)) {
-                $src = $source_poster_dir . '/' . $poster_val;
-                $dst = $target_poster_dir . '/' . $poster_val;
-                if (file_exists($src) && !file_exists($dst)) {
+            if (! empty($poster_val) && ! filter_var($poster_val, FILTER_VALIDATE_URL)) {
+                $src = $source_poster_dir.'/'.$poster_val;
+                $dst = $target_poster_dir.'/'.$poster_val;
+                if (file_exists($src) && ! file_exists($dst)) {
                     copy($src, $dst);
                 }
             }
@@ -99,11 +98,11 @@ try {
             foreach ($episodes->fetchAll() as $ep) {
                 $stmtEpisode->execute([
                     ':aid' => $new_anime_id,
-                    ':title' => $ep['title'] ?? ('Episode ' . $ep['episode_number']),
+                    ':title' => $ep['title'] ?? ('Episode '.$ep['episode_number']),
                     ':enum' => $ep['episode_number'],
                     ':eslug' => $ep['slug'],
                     ':ca' => $ep['created_at'] ?? date('Y-m-d H:i:s'),
-                    ':ua' => $ep['updated_at'] ?? date('Y-m-d H:i:s')
+                    ':ua' => $ep['updated_at'] ?? date('Y-m-d H:i:s'),
                 ]);
                 $new_eid = $pdo->lastInsertId();
 
@@ -122,7 +121,7 @@ try {
                         ':eid' => $new_eid,
                         ':res' => $dl['quality'],
                         ':prov' => $dl['host'],
-                        ':url' => $dl['url']
+                        ':url' => $dl['url'],
                     ]);
                 }
             }
@@ -131,12 +130,12 @@ try {
             echo "Imported: {$anime['slug']}\n";
         } catch (Exception $e) {
             $pdo->rollBack();
-            echo "Error importing {$anime['slug']}: " . $e->getMessage() . "\n";
+            echo "Error importing {$anime['slug']}: ".$e->getMessage()."\n";
         }
     }
 
     echo "--- Import Selesai ---\n";
 
 } catch (PDOException $e) {
-    echo "Koneksi Gagal: " . $e->getMessage() . "\n";
+    echo 'Koneksi Gagal: '.$e->getMessage()."\n";
 }

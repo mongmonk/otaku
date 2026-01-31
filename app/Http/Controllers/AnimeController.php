@@ -12,28 +12,30 @@ class AnimeController extends Controller
     public function index()
     {
         // Ambil anime yang baru saja diupdate episodenya, prioritaskan yang Ongoing
-        $latestAnimes = Anime::with(['episodes' => function($q) {
-                $q->latest('id');
-            }])
+        $latestAnimes = Anime::with(['episodes' => function ($q) {
+            $q->latest('id');
+        }])
             ->where('status', 'Ongoing')
             ->orderBy('updated_at', 'desc')
             ->take(10)
             ->get();
 
         $popularAnimes = Anime::orderBy('score', 'desc')->where('score', '>', 0)->take(10)->get();
-        
+
         return view('home', compact('latestAnimes', 'popularAnimes'));
     }
 
     public function list()
     {
         $animes = Anime::latest('updated_at')->paginate(20);
+
         return view('anime.list', compact('animes'));
     }
 
     public function latest()
     {
         $episodes = Episode::with('anime')->latest('updated_at')->paginate(20);
+
         return view('anime.latest', compact('episodes'));
     }
 
@@ -44,12 +46,14 @@ class AnimeController extends Controller
             ->groupBy('studio')
             ->orderBy('studio')
             ->get();
+
         return view('anime.studios', compact('studios'));
     }
 
     public function studio($studio)
     {
         $animes = Anime::where('studio', $studio)->latest('updated_at')->paginate(20);
+
         return view('anime.list', compact('animes', 'studio'));
     }
 
@@ -58,6 +62,7 @@ class AnimeController extends Controller
         $genres = Genre::withCount('animes')
             ->orderBy('name')
             ->get();
+
         return view('anime.genres', compact('genres'));
     }
 
@@ -65,6 +70,7 @@ class AnimeController extends Controller
     {
         $animes = Anime::where('status', 'Completed')->latest('updated_at')->paginate(20);
         $status = 'Completed';
+
         return view('anime.list', compact('animes', 'status'));
     }
 
@@ -72,6 +78,7 @@ class AnimeController extends Controller
     {
         $animes = Anime::orderBy('score', 'desc')->where('score', '>', 0)->paginate(20);
         $isPopular = true;
+
         return view('anime.list', compact('animes', 'isPopular'));
     }
 
@@ -84,7 +91,7 @@ class AnimeController extends Controller
         $query = Anime::query();
 
         if ($search) {
-            $query->where('title', 'like', '%' . $search . '%');
+            $query->where('title', 'like', '%'.$search.'%');
         }
 
         if ($status) {
@@ -92,19 +99,20 @@ class AnimeController extends Controller
         }
 
         if ($genre) {
-            $query->whereHas('genres', function($q) use ($genre) {
+            $query->whereHas('genres', function ($q) use ($genre) {
                 $q->where('slug', $genre);
             });
         }
 
         $animes = $query->orderBy('title', 'asc')->paginate(20);
+
         return view('anime.list', compact('animes'));
     }
 
     public function azList(Request $request)
     {
         $letter = $request->get('show', 'A');
-        
+
         $query = Anime::orderBy('title', 'asc');
 
         if ($letter === '0-9') {
@@ -112,17 +120,17 @@ class AnimeController extends Controller
         } elseif ($letter === '#') {
             $query->whereRaw('title REGEXP "^[^a-zA-Z0-9]"');
         } else {
-            $query->where('title', 'like', $letter . '%');
+            $query->where('title', 'like', $letter.'%');
         }
 
         $animes = $query->paginate(30);
-        
+
         return view('anime.az-list', compact('animes', 'letter'));
     }
 
     public function show($slug)
     {
-        $anime = Anime::with(['genres', 'episodes' => function($q) {
+        $anime = Anime::with(['genres', 'episodes' => function ($q) {
             $q->orderBy('id', 'asc');
         }])->where('slug', $slug)->firstOrFail();
 
@@ -135,17 +143,17 @@ class AnimeController extends Controller
         // Kita cari berdasarkan episode_slug atau parsing slug baru jika diperlukan
         // Namun karena database masih menggunakan episode_slug yang lama,
         // kita perlu menyesuaikan pencarian.
-        
+
         $episode = Episode::with(['anime.episodes', 'streamLinks', 'downloadLinks'])
             ->where('episode_slug', $slug)
-            ->orWhere(function($query) use ($slug) {
+            ->orWhere(function ($query) use ($slug) {
                 if (preg_match('/^(.*)-episode-(\d+)$/', $slug, $matches)) {
                     $animeSlug = $matches[1];
                     $episodeNumber = $matches[2];
                     $query->where('episode_number', $episodeNumber)
-                          ->whereHas('anime', function($q) use ($animeSlug) {
-                              $q->where('slug', $animeSlug);
-                          });
+                        ->whereHas('anime', function ($q) use ($animeSlug) {
+                            $q->where('slug', $animeSlug);
+                        });
                 }
             })
             ->firstOrFail();

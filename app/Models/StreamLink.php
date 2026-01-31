@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class StreamLink extends Model
 {
     protected $table = 'stream_links';
+
     protected $guarded = [];
 
     public function episode(): BelongsTo

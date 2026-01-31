@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class Anime extends Model
 {
     protected $table = 'animes';
+
     protected $guarded = [];
 
     public function genres(): BelongsToMany
