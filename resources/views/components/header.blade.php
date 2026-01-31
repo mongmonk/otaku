@@ -33,9 +33,21 @@
                     Bookmark
                 </a>
             </div>
+            <button id="mobile-search-btn" class="md:hidden text-xl text-gray-600 focus:outline-none">
+                <i class="fas fa-search"></i>
+            </button>
             <button id="mobile-menu-btn" class="md:hidden text-2xl text-gray-600 focus:outline-none">
                 <i class="fas fa-bars"></i>
             </button>
         </div>
+    </div>
+    <!-- Mobile Search Bar -->
+    <div id="mobile-search-container" class="hidden md:hidden bg-white border-t border-gray-100 px-4 py-3">
+        <form action="{{ route('anime.search') }}" method="GET" class="relative">
+            <input type="text" name="s" placeholder="Cari anime..." value="{{ request('s') }}" class="w-full bg-gray-100 border border-gray-300 rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <button type="submit" class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400">
+                <i class="fas fa-search"></i>
+            </button>
+        </form>
     </div>
 </header>

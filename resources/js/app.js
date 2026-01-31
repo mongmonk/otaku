@@ -115,10 +115,28 @@ document.addEventListener('DOMContentLoaded', function() {
     // Mobile Menu Toggle
     const mobileMenuBtn = document.getElementById('mobile-menu-btn');
     const mainMenu = document.getElementById('main-menu');
+    const mobileSearchBtn = document.getElementById('mobile-search-btn');
+    const mobileSearchContainer = document.getElementById('mobile-search-container');
 
     if (mobileMenuBtn && mainMenu) {
         mobileMenuBtn.addEventListener('click', function() {
             mainMenu.classList.toggle('hidden');
+            if (mobileSearchContainer && !mobileSearchContainer.classList.contains('hidden')) {
+                mobileSearchContainer.classList.add('hidden');
+            }
+        });
+    }
+
+    if (mobileSearchBtn && mobileSearchContainer) {
+        mobileSearchBtn.addEventListener('click', function() {
+            mobileSearchContainer.classList.toggle('hidden');
+            if (mainMenu && !mainMenu.classList.contains('hidden')) {
+                mainMenu.classList.add('hidden');
+            }
+            if (!mobileSearchContainer.classList.contains('hidden')) {
+                const searchInput = mobileSearchContainer.querySelector('input');
+                if (searchInput) searchInput.focus();
+            }
         });
     }
 });
