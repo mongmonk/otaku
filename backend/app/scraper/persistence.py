@@ -1,11 +1,60 @@
 import re
+import os
+import httpx
+import logging
 import unicodedata
+from typing import Optional
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from sqlalchemy import update, delete
 from sqlalchemy.orm import selectinload
 from app.models.database import Anime, Episode, DownloadLink, StreamLink, Genre
 from datetime import datetime
+
+logger = logging.getLogger(__name__)
+
+async def download_poster(url: str, slug: str) -> Optional[str]:
+    """
+    Download poster dari URL dan simpan ke public/posters/
+    """
+    if not url or not url.startswith('http'):
+        return url
+
+    try:
+        # Tentukan path penyimpanan (relatif ke root proyek)
+        # Asumsi struktur: c:/laragon/www/otaku/backend/app/scraper/persistence.py
+        # Target: c:/laragon/www/otaku/public/posters/
+        base_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+        target_dir = os.path.join(base_dir, "public", "posters")
+        
+        if not os.path.exists(target_dir):
+            os.makedirs(target_dir, exist_ok=True)
+
+        # Ambil ekstensi file
+        ext = url.split('.')[-1]
+        if len(ext) > 4: # Handle query params jika ada
+            ext = 'jpg'
+        
+        filename = f"{slug}.{ext}"
+        filepath = os.path.join(target_dir, filename)
+
+        # Jika file sudah ada, tidak perlu download lagi
+        if os.path.exists(filepath):
+            return filename
+
+        async with httpx.AsyncClient(timeout=30.0) as client:
+            response = await client.get(url)
+            if response.status_code == 200:
+                with open(filepath, "wb") as f:
+                    f.write(response.content)
+                logger.info(f"Berhasil mendownload poster: {filename}")
+                return filename
+            else:
+                logger.error(f"Gagal download poster status {response.status_code}: {url}")
+                return url
+    except Exception as e:
+        logger.error(f"Error download poster {url}: {e}")
+        return url
 
 def slugify(text: str) -> str:
     """
@@ -37,6 +86,12 @@ async def save_anime(db: AsyncSession, anime_data: dict):
     
     # Update anime_data untuk menggunakan slug baru
     anime_data["slug"] = new_clean_slug
+
+    # Handle Poster Download
+    poster_url = anime_data.get("poster_url")
+    if poster_url and poster_url.startswith('http'):
+        local_poster = await download_poster(poster_url, new_clean_slug)
+        anime_data["poster_url"] = local_poster
 
     if not new_clean_slug:
         return None
