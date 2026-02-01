@@ -40,7 +40,7 @@ async def download_poster(url: str, slug: str) -> Optional[str]:
 
         # Jika file sudah ada, tidak perlu download lagi
         if os.path.exists(filepath):
-            return filename
+            return f"/posters/{filename}"
 
         async with httpx.AsyncClient(timeout=30.0) as client:
             response = await client.get(url)
@@ -48,7 +48,7 @@ async def download_poster(url: str, slug: str) -> Optional[str]:
                 with open(filepath, "wb") as f:
                     f.write(response.content)
                 logger.info(f"Berhasil mendownload poster: {filename}")
-                return filename
+                return f"/posters/{filename}"
             else:
                 logger.error(f"Gagal download poster status {response.status_code}: {url}")
                 return url
