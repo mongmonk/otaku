@@ -111,20 +111,16 @@
             <h3 class="font-bold text-gray-700"><i class="fas fa-download mr-2 text-primary"></i> Download {{ $episode->title }}</h3>
         </div>
         <div class="p-4">
-            <div class="space-y-4">
+            <div class="flex flex-wrap gap-2">
                 @php
                     $groupedDownloads = $episode->downloadLinks->groupBy('resolution');
-                    $globalCounter = 1;
                 @endphp
                 @forelse($groupedDownloads as $resolution => $links)
-                <div class="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 p-3 bg-gray-50 rounded border border-gray-100">
-                    <div class="flex-shrink-0 w-20">
-                        <span class="bg-primary text-white px-2 py-1 rounded text-xs font-bold">{{ $resolution }}</span>
-                    </div>
-                    <div class="flex flex-wrap gap-x-4 gap-y-2 text-sm">
+                <div class="flex items-center p-2 bg-gray-50 rounded border border-gray-100">
+                    <div class="flex flex-wrap gap-2 text-sm">
                         @foreach($links as $link)
-                        <a href="{{ $link->url }}" target="_blank" class="text-blue-600 hover:text-blue-800 font-medium transition flex items-center">
-                            <i class="fas fa-external-link-alt mr-1 text-[10px]"></i> Download {{ $resolution }}
+                        <a href="{{ $link->url }}" target="_blank" class="bg-primary text-white px-2 py-1 rounded text-xs font-bold">
+                            <i class="fas fa-download mr-1 text-[10px]"></i> {{ $resolution }}
                         </a>
                         @endforeach
                     </div>
