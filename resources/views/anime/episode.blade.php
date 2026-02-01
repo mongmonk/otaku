@@ -114,6 +114,7 @@
             <div class="space-y-4">
                 @php
                     $groupedDownloads = $episode->downloadLinks->groupBy('resolution');
+                    $globalCounter = 1;
                 @endphp
                 @forelse($groupedDownloads as $resolution => $links)
                 <div class="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 p-3 bg-gray-50 rounded border border-gray-100">
@@ -123,7 +124,7 @@
                     <div class="flex flex-wrap gap-x-4 gap-y-2 text-sm">
                         @foreach($links as $link)
                         <a href="{{ $link->url }}" target="_blank" class="text-blue-600 hover:text-blue-800 font-medium transition flex items-center">
-                            <i class="fas fa-external-link-alt mr-1 text-[10px]"></i> {{ $link->provider }}
+                            <i class="fas fa-external-link-alt mr-1 text-[10px]"></i> Download {{ $resolution }}
                         </a>
                         @endforeach
                     </div>
