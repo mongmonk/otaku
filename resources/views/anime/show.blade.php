@@ -119,7 +119,7 @@
                         <a href="{{ route('episode.show', $anime->slug . '-episode-' . $episode->episode_number) }}" class="flex items-center justify-between py-3 px-2 hover:bg-gray-50 transition group">
                             <div class="flex items-center gap-4">
                                 <span class="font-bold text-primary w-8">{{ $episode->episode_number }}</span>
-                                <span class="text-gray-700 font-medium group-hover:text-primary transition">{{ $episode->title }}</span>
+                                <span class="text-gray-700 font-medium group-hover:text-primary transition">{{ $episode->anime->title }} Episode {{ $episode->episode_number }} Subtitle Indonesia</span>
                             </div>
                             <span class="text-xs text-gray-400">{{ $episode->uploaded_at }}</span>
                         </a>

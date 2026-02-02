@@ -119,6 +119,16 @@
         input:checked + .slider:before {
             transform: translateX(20px);
         }
+
+        /* Visited Link Style for Episode List */
+        .bixbox ul li a:visited span {
+            color: #0c70de !important;
+        }
+        .bixbox ul li a:visited span.text-gray-400,
+        .bixbox ul li a:visited span.text-xs.text-gray-400,
+        .bixbox ul li a:visited span.text-\[10px\].text-gray-400 {
+            color: #9ca3af !important; /* Kembalikan warna abu-abu untuk info tanggal/waktu */
+        }
     </style>
     <script>
         // Immediate script to prevent flash of unstyled content
