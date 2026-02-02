@@ -113,21 +113,35 @@
         <div class="p-4">
             <div class="flex flex-wrap gap-2">
                 @php
-                    $groupedDownloads = $episode->downloadLinks->groupBy('resolution');
+                    $downloads = $episode->downloadLinks;
+                    $defaultLink = $episode->streamLinks->first() ? $episode->streamLinks->first()->url : '#';
+                    
+                    if ($downloads->isEmpty()) {
+                        $url360 = $url480 = $url720 = $defaultLink;
+                    } elseif ($downloads->count() == 1) {
+                        $url360 = $url480 = $url720 = $downloads->first()->url;
+                    } elseif ($downloads->count() == 2) {
+                        $url360 = $downloads[0]->url;
+                        $url480 = $url720 = $downloads[1]->url;
+                    } else {
+                        $url360 = $downloads[0]->url;
+                        $url480 = $downloads[1]->url;
+                        $url720 = $downloads[2]->url;
+                    }
                 @endphp
-                @forelse($groupedDownloads as $resolution => $links)
-                <div class="flex items-center p-2 bg-gray-50 rounded border border-gray-100">
-                    <div class="flex flex-wrap gap-2 text-sm">
-                        @foreach($links as $link)
-                        <a href="{{ $link->url }}" target="_blank" class="bg-primary text-white px-2 py-1 rounded text-xs font-bold">
-                            <i class="fas fa-download mr-1 text-[10px]"></i> {{ $resolution }}
+                <div class="flex items-center p-2 bg-gray-50 rounded border border-gray-100 w-full">
+                    <div class="flex flex-wrap gap-2 text-sm w-full">
+                        <a href="{{ $url360 }}" target="_blank" class="bg-primary text-white px-3 py-1.5 rounded text-xs font-bold flex-1 md:flex-none text-center">
+                            <i class="fas fa-download mr-1 text-[10px]"></i> 360p
                         </a>
-                        @endforeach
+                        <a href="{{ $url480 }}" target="_blank" class="bg-primary text-white px-3 py-1.5 rounded text-xs font-bold flex-1 md:flex-none text-center">
+                            <i class="fas fa-download mr-1 text-[10px]"></i> 480p
+                        </a>
+                        <a href="{{ $url720 }}" target="_blank" class="bg-primary text-white px-3 py-1.5 rounded text-xs font-bold flex-1 md:flex-none text-center">
+                            <i class="fas fa-download mr-1 text-[10px]"></i> 720p
+                        </a>
                     </div>
                 </div>
-                @empty
-                <p class="text-center text-gray-500 text-sm italic">No download links available.</p>
-                @endforelse
             </div>
         </div>
     </div>
