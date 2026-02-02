@@ -40,7 +40,7 @@
                                 <i class="far fa-play-circle text-5xl text-white"></i>
                             </div>
                             <div class="bt absolute" style="bottom: 8px; left: 8px; z-index: 20;">
-                                <span class="epx text-white text-[10px] font-bold px-2 py-1 rounded shadow-lg" style="background-color: #0ea5e9; display: inline-block;">{{ $anime->total_episode ?? '?' }} Episodes</span>
+                                <span class="epx text-white text-[10px] font-bold px-2 py-1 rounded shadow-lg" style="background-color: #0ea5e9; display: inline-block;">{{ $anime->total_episode ?: $anime->episodes->count() }} Episodes</span>
                             </div>
                         </div>
                         <div class="tt p-2 text-center">
